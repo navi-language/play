@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import stripAnsi from "strip-ansi";
 import { addNaviLanguage } from "./languages";
 
-const SERVER_URL = "http://127.0.0.1:3000";
+const SERVER_URL = import.meta.env.PROD
+  ? "https://navi-playground.onrender.com"
+  : "http://localhost:3000";
 
 const DEFAULT_VALUE = `fn main() throws {
     println("Hello world!");
