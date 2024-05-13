@@ -1,9 +1,10 @@
-import { stdin } from "bun";
-import { spawnSync } from "child_process";
+import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import { tmpdir } from "os";
 
 const PORT = process.env.PORT || 3000;
+const SPAWN_TIMEOUT = 10000;
+const TIMEOUT_MESSAGE = `Execution timeout, the maximum allowed time is ${SPAWN_TIMEOUT / 1000}s.`;
 
 const CORS_HEADERS = {
   headers: {
@@ -48,7 +49,7 @@ async function handleFormat(req: Request) {
   }
 
   const result = await NaviCommand.format(source);
-  if (result.error) {
+  if (result.exitCode != 0) {
     return newResponse({ error: result.stderr.toString() }, 400);
   }
 
@@ -65,8 +66,9 @@ async function handleExecute(req: Request) {
   }
 
   const result = await NaviCommand.run(source);
-  if (result.error) {
-    return newResponse({ error: result.stdout.toString() }, 400);
+  if (result.exitCode != 0) {
+    const error = result.stderr || result.stdout;
+    return newResponse({ error }, 400);
   }
 
   return newResponse({ out: result.stdout.toString() }, 200);
@@ -91,12 +93,54 @@ class NaviCommand {
     const tmpFile = tmpdir() + "/" + randomUUID() + ".nv";
     Bun.write(tmpFile, source);
 
-    return spawnSync("navi", ["run", tmpFile]);
+    return this.exec("navi", ["run", tmpFile]);
   }
 
   static async format(source: string) {
-    return spawnSync("navi", ["fmt", "--stdin", "--emit", "stdout"], {
+    return this.exec("navi", ["fmt", "--stdin", "--emit", "stdout"], {
       input: source,
+    });
+  }
+
+  static async exec(
+    command: string,
+    args: string[],
+    options: {
+      input?: string;
+    } = {},
+  ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+    // args.unshift(command);
+    const child = spawn(command, args, {
+      stdio: "pipe",
+      timeout: SPAWN_TIMEOUT,
+    });
+
+    if (options.input) {
+      child.stdin?.write(options.input);
+      child.stdin?.end();
+    }
+
+    return new Promise((resolve) => {
+      const result = { exitCode: -1, stdout: "", stderr: "" };
+
+      child.stdout?.on("data", (data) => {
+        result.stdout += data;
+      });
+
+      child.stderr?.on("data", (data) => {
+        result.stderr += data;
+      });
+
+      child.on("exit", (code) => {
+        if (code === null) {
+          code = -1;
+          result.stderr = TIMEOUT_MESSAGE;
+        }
+
+        result.exitCode = code || 0;
+        // console.log("exit", code, result);
+        resolve(result);
+      });
     });
   }
 }
