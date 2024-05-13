@@ -3,6 +3,8 @@ import { spawnSync } from "child_process";
 import { randomUUID } from "crypto";
 import { tmpdir } from "os";
 
+const PORT = process.env.PORT || 3000;
+
 const CORS_HEADERS = {
   headers: {
     "Access-Control-Allow-Origin": "*",
@@ -11,11 +13,11 @@ const CORS_HEADERS = {
   },
 };
 
-console.log("Server is running on port 3000");
-console.log("http://localhost:3000");
+console.log(`Server is running on port ${PORT}`);
+console.log(`http://localhost:${PORT}`);
 
 Bun.serve({
-  port: 3000,
+  port: PORT,
   async fetch(req) {
     const path = new URL(req.url).pathname;
 

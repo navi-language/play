@@ -1,12 +1,10 @@
-## Setup Fly.io
-
-```bash
-brew install flyctl
-```
-
 ## Start Dev Server
 
 - Run `bun run serve` to start the backend server.
 - Run `npm run dev` to start the frontend server.
 
 And then visit http://localhost:5173 to see the app.
+
+## Deploy
+
+We deploy the backend server on https://render.com
