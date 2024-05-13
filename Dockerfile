@@ -9,4 +9,4 @@ COPY package.json ./
 COPY bun.lockb ./
 COPY server ./server/
 
-RUN bun run serve
+CMD ["bun", "run", "serve"]
