@@ -19,6 +19,10 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   tabSize: 4,
   useTabStops: false,
   lineNumbers: "off",
+  padding: {
+    top: 10,
+    bottom: 10,
+  },
   scrollbar: {
     verticalScrollbarSize: 5,
     horizontalScrollbarSize: 5,
@@ -156,7 +160,7 @@ export const AppEditor = () => {
             Format
           </button>
         </div>
-        <span className="hidden message sm:block">{message}</span>
+        <span className="hidden message">{message}</span>
       </div>
       <div className="editor-wraper mt-4">
         <Editor
@@ -167,7 +171,7 @@ export const AppEditor = () => {
           options={editorOptions}
           onMount={onEditorMounted}
         />
-        <pre className="editor-output h-[300px] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-800 dark:text-gray-200 dark:bg-gray-950 p-3">
+        <pre className="editor-output text-wrap overflow-y-scroll h-[300px] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
           {stripAnsi(output)}
         </pre>
       </div>
