@@ -22,6 +22,17 @@ Bun.serve({
   async fetch(req) {
     const path = new URL(req.url).pathname;
 
+    const clientIP =
+      req.headers["x-forwarded-for"] ||
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-real-ip"] ||
+      "";
+
+    const userAgent = req.headers["user-agent"] || "";
+    const date = new Date().toISOString();
+
+    console.info(`${date} ${req.method} ${path} ${clientIP} ${userAgent}`);
+
     // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
       const res = new Response("", CORS_HEADERS);
