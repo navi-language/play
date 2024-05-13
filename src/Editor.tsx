@@ -167,7 +167,7 @@ export const AppEditor = () => {
           options={editorOptions}
           onMount={onEditorMounted}
         />
-        <pre className="editor-output h-[300px] border-t border-t-gray-300 bg-gray-100 p-3">
+        <pre className="editor-output h-[300px] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-800 dark:text-gray-200 dark:bg-gray-950 p-3">
           {stripAnsi(output)}
         </pre>
       </div>
