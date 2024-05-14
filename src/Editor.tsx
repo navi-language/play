@@ -185,13 +185,12 @@ export const AppEditor = () => {
       <div className="editor-wraper mt-4">
         <Editor
           defaultLanguage="navi"
-          className="flex-1 w-full"
-          height={300}
+          className="flex-1 w-full h-screen max-h-[50vh]"
           theme={editorOptions.theme}
           options={editorOptions}
           onMount={onEditorMounted}
         />
-        <pre className="editor-output text-wrap overflow-y-scroll h-[300px] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
+        <pre className="editor-output text-wrap overflow-y-scroll h-screen max-h-[25vh] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
           {stripAnsi(output || "No output.")}
         </pre>
       </div>
