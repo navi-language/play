@@ -44,6 +44,11 @@ button,
         @apply bg-blue-600 ring-blue-800 hover:bg-blue-500 text-white active:bg-blue-700;
         @apply dark:bg-blue-950 dark:ring-blue-700 dark:hover:bg-opacity-40 dark:text-white dark:active:bg-blue-950;
     }
+
+    &[disabled] {
+        @apply bg-gray-200 hover:bg-gray-200 ring-gray-500 text-gray-500 cursor-not-allowed opacity-70;
+        @apply dark:bg-gray-800 dark:hover:bg-gray-800 dark:text-gray-500 dark:ring-gray-500;
+    }
 }
 
 .message {

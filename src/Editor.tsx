@@ -39,6 +39,8 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
 };
 
 export const AppEditor = () => {
+  const [running, setRunning] = useState(false);
+  const [formating, setFormating] = useState(false);
   const [output, setOutput] = useState("");
   const [monaco, setMonaco] = useState<any>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
@@ -73,6 +75,7 @@ export const AppEditor = () => {
     }
 
     setOutput("Executing please wait...");
+    setRunning(true);
 
     const start = new Date();
     fetch(`${SERVER_URL}/execute`, {
@@ -96,6 +99,7 @@ export const AppEditor = () => {
         // @ts-expect-error false
         const duration = new Date() - start;
         showMessage(`Speed time: ${duration}ms`);
+        setRunning(false);
       });
 
     return false;
@@ -108,6 +112,7 @@ export const AppEditor = () => {
     }
 
     setOutput("Formating...");
+    setFormating(true);
 
     const start = new Date();
     fetch(`${SERVER_URL}/format`, {
@@ -132,6 +137,7 @@ export const AppEditor = () => {
         // @ts-expect-error false
         const duration = new Date() - start;
         showMessage(`Speed time: ${duration}ms`);
+        setFormating(false);
       });
 
     return false;
@@ -146,18 +152,32 @@ export const AppEditor = () => {
   };
 
   useEffect(() => {
-    editor?.setValue(DEFAULT_VALUE);
+    // Load default value from query
+    // ?source=base64
+    if (window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("source")) {
+        const source = atob(params.get("source") || "").toString();
+        editor?.setValue(source);
+      }
+    } else {
+      editor?.setValue(DEFAULT_VALUE);
+    }
   }, [editor]);
 
   return (
     <div className="p-4 text-left app-editor-wrap">
       <div className="flex items-center justify-between space-x-3">
         <div className="flex gap-3">
-          <button className="btn-primary" onClick={executeCode}>
-            Run
+          <button
+            className="btn-primary"
+            disabled={running}
+            onClick={executeCode}
+          >
+            {running ? "Running..." : "Run"}
           </button>
-          <button className="btn" onClick={formatText}>
-            Format
+          <button className="btn" disabled={formating} onClick={formatText}>
+            {formating ? "Formating..." : "Format"}
           </button>
         </div>
         <span className="hidden message">{message}</span>
@@ -172,7 +192,7 @@ export const AppEditor = () => {
           onMount={onEditorMounted}
         />
         <pre className="editor-output text-wrap overflow-y-scroll h-[300px] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
-          {stripAnsi(output)}
+          {stripAnsi(output || "No output.")}
         </pre>
       </div>
     </div>
