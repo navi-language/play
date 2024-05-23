@@ -1,7 +1,6 @@
 import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import { useEffect, useState } from "react";
-import stripAnsi from "strip-ansi";
 import { addNaviLanguage } from "./languages";
 
 const SERVER_URL = import.meta.env.PROD
@@ -191,7 +190,7 @@ export const AppEditor = () => {
           onMount={onEditorMounted}
         />
         <pre className="editor-output text-wrap overflow-y-scroll h-screen max-h-[25vh] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
-          {stripAnsi(output || "No output.")}
+          {output || "No output."}
         </pre>
       </div>
     </div>

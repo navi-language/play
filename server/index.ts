@@ -1,6 +1,7 @@
 import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import { tmpdir } from "os";
+import stripAnsi from "strip-ansi";
 
 const PORT = process.env.PORT || 3000;
 const SPAWN_TIMEOUT = 10000;
@@ -61,10 +62,10 @@ async function handleFormat(req: Request) {
 
   const result = await NaviCommand.format(source);
   if (result.exitCode != 0) {
-    return newResponse({ error: result.stderr.toString() }, 400);
+    return newResponse({ error: stripAnsi(result.stderr) }, 400);
   }
 
-  return newResponse({ out: result.stdout.toString() }, 200);
+  return newResponse({ out: result.stdout }, 200);
 }
 
 // POST /execute
@@ -78,11 +79,11 @@ async function handleExecute(req: Request) {
 
   const result = await NaviCommand.run(source);
   if (result.exitCode != 0) {
-    const error = result.stderr || result.stdout;
+    const error = stripAnsi(result.stderr || result.stdout);
     return newResponse({ error }, 400);
   }
 
-  return newResponse({ out: result.stdout.toString() }, 200);
+  return newResponse({ out: stripAnsi(result.stdout) }, 200);
 }
 
 function newResponse(
