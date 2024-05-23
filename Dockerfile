@@ -11,6 +11,7 @@ COPY package.json ./
 COPY bun.lockb ./
 COPY server ./server/
 
+RUN bun install --production
 RUN curl -sSL https://navi-lang.org/install | bash -s -- nightly
 
 CMD ["bun", "run", "serve"]
