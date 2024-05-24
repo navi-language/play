@@ -1,0 +1,33 @@
+use std.io;
+use std.testing.assert_throws;
+
+fn say(name: string): string {
+    return `Hello ${name}!`;
+}
+
+// Here is ok
+test "say" {
+    let message = say("World");
+    assert message == "Hello World!";
+    assert_eq message, "Hello World!";
+    assert_ne message, "";
+}
+
+fn add(a: int, b: int): int {
+    return a + b;
+}
+
+test "add" {
+    let result = add(1, 2);
+    assert result == 3;
+    assert_eq result, 3;
+    assert_ne result, 0;
+}
+
+test "assert_throws" {
+    assert_throws(|| {
+        throw "Hello";
+    }, |e| {
+        assert_eq e.error(), "Hello1";
+    });
+}

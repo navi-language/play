@@ -1,0 +1,26 @@
+use std.time;
+
+fn main() throws {
+    let ch: channel<int> = channel();
+
+    spawn {
+        println("This will print 1");
+        time.sleep(0.1.seconds());
+        println("This is print from spawn 1");
+        // Signal that we're done
+        ch.send(1);
+    }
+
+    spawn {
+        println("This will print 2");
+        time.sleep(0.1.seconds());
+        println("This is print from spawn 2");
+        // Signal that we're done
+        ch.send(1);
+    }
+
+    println("This is printed 3");
+    // Wait for the spawned task to finish
+    ch.recv();
+    println("All done");
+}

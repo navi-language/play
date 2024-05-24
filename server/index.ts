@@ -43,6 +43,9 @@ Bun.serve({
     if (req.method === "POST" && path === "/execute") {
       return await handleExecute(req);
     }
+    if (req.method === "POST" && path === "/test") {
+      return await handleTest(req);
+    }
     if (req.method === "POST" && path === "/format") {
       return await handleFormat(req);
     }
@@ -83,6 +86,28 @@ async function handleExecute(req: Request) {
     return newResponse({ error }, 400);
   }
 
+  console.log(result);
+
+  return newResponse({ out: stripAnsi(result.stdout) }, 200);
+}
+
+// POST /test
+async function handleTest(req: Request) {
+  const payload = await req.json();
+  const { source } = payload;
+
+  if (!source) {
+    return new Response("No source code provided", { status: 200 });
+  }
+
+  const result = await NaviCommand.test(source);
+  if (result.exitCode != 0) {
+    const error = stripAnsi(result.stderr || result.stdout);
+    return newResponse({ error }, 400);
+  }
+
+  console.log(result);
+
   return newResponse({ out: stripAnsi(result.stdout) }, 200);
 }
 
@@ -106,6 +131,13 @@ class NaviCommand {
     Bun.write(tmpFile, source);
 
     return this.exec("navi", ["run", tmpFile]);
+  }
+
+  static async test(source: string) {
+    const tmpFile = tmpdir() + "/" + randomUUID() + ".nv";
+    Bun.write(tmpFile, source);
+
+    return this.exec("navi", ["test", tmpFile]);
   }
 
   static async format(source: string) {

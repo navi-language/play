@@ -3,13 +3,13 @@ import * as monaco from "monaco-editor";
 import { useEffect, useState } from "react";
 import { addNaviLanguage } from "./languages";
 
+import examples from "./examples";
+
 const SERVER_URL = import.meta.env.PROD
   ? "https://navi-playground.onrender.com"
   : "http://localhost:3000";
 
-const DEFAULT_VALUE = `fn main() throws {
-    println("Hello world!");
-}`;
+const DEFAULT_VALUE = examples["hello_world.nv"];
 
 const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   theme: window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -38,6 +38,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
 };
 
 export const AppEditor = () => {
+  const [currentExample, setCurrentExample] = useState("hello_world.nv");
   const [running, setRunning] = useState(false);
   const [formating, setFormating] = useState(false);
   const [output, setOutput] = useState("");
@@ -68,7 +69,7 @@ export const AppEditor = () => {
     }
   }, [monaco]);
 
-  const executeCode = () => {
+  const executeCode = (is_test = false) => {
     if (!editor) {
       return;
     }
@@ -76,8 +77,10 @@ export const AppEditor = () => {
     setOutput("Executing please wait...");
     setRunning(true);
 
+    const path = is_test ? "/test" : "/execute";
+
     const start = new Date();
-    fetch(`${SERVER_URL}/execute`, {
+    fetch(`${SERVER_URL}${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -164,6 +167,25 @@ export const AppEditor = () => {
     }
   }, [editor]);
 
+  const ExampleSelector = () => {
+    return (
+      <select
+        className="select"
+        onChange={(e) => {
+          const key = e.target.value;
+          setCurrentExample(key);
+          editor?.setValue(examples[key]);
+        }}
+      >
+        {Object.keys(examples).map((key) => (
+          <option key={key} value={key} selected={currentExample == key}>
+            {key}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
   return (
     <div className="p-4 text-left app-editor-wrap">
       <div className="flex items-center justify-between space-x-3">
@@ -171,15 +193,23 @@ export const AppEditor = () => {
           <button
             className="btn-primary"
             disabled={running}
-            onClick={executeCode}
+            onClick={() => executeCode()}
           >
-            {running ? "Running..." : "Run"}
+            Run
+          </button>
+          <button
+            className="btn-secondary"
+            disabled={running}
+            onClick={() => executeCode(true)}
+          >
+            Test
           </button>
           <button className="btn" disabled={formating} onClick={formatText}>
             {formating ? "Formating..." : "Format"}
           </button>
+          <span className="message">{running ? "Executing..." : ""}</span>
         </div>
-        <span className="hidden message">{message}</span>
+        <ExampleSelector />
       </div>
       <div className="editor-wraper mt-4">
         <Editor

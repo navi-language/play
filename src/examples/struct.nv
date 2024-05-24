@@ -1,0 +1,38 @@
+use std.json;
+use std.yaml;
+
+struct User {
+    name: string,
+    id: int,
+    profile: Profile?,
+    // default value is `false`
+    confirmed: bool = false,
+}
+
+struct Profile {
+    bio: string?,
+    city: string?,
+    tags: [string] = [],
+}
+
+let user = User {
+    name: "Jason Lee",
+    id: 1,
+    profile: {bio: nil, city: "Chengdu", tags: ["Rust", "Navi"]},
+};
+
+fn main() throws {
+    println("Convert to JSON\n\n");
+    println(try json.to_string(user, pretty: true));
+    println("");
+    println("Convert to YAML\n\n");
+    println(try yaml.to_string(user));
+}
+
+test "user" {
+    assert_eq user.name, "Jason Lee";
+    assert_eq user.confirmed, false;
+    assert_eq user.profile?.bio, nil;
+    assert_eq user.profile?.city, "Chengdu";
+    assert_eq user.profile?.tags?.len(), 2;
+}

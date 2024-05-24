@@ -1,0 +1,17 @@
+// main.nv
+let name = "World";
+let pi = 3.14;
+let passed = true;
+let items = {"first": 1, "second": 2, "third": 3};
+let arr = [1, 2, 3];
+let d = 300.seconds();
+
+fn main() throws {
+    name = "Navi";
+    pi = 3.1415926;
+    passed = false;
+    let message = `Hello ${name}, pi: ${pi}, passed: ${passed}!`;
+    println(message);
+    println(`${items:?} ${arr:?}`);
+    println(`300 seconds: ${d} is ${d.minutes()} minutes!`);
+}

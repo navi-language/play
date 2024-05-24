@@ -1,0 +1,41 @@
+enum Status {
+    Ok,
+    AccessDenied,
+}
+
+impl Status {
+    fn is_ok(self): bool {
+        switch (self) {
+            case Status.Ok:
+                return true;
+            case Status.AccessDenied:
+                return false;
+        }
+    }
+}
+
+impl ToString for Status {
+    pub fn to_string(self): string {
+        switch (self) {
+            case Status.Ok:
+                return "Ok";
+            case Status.AccessDenied:
+                return "AccessDenied";
+        }
+    }
+}
+
+fn consume_status(status: Status) {
+    println(`status: ${status}`);
+}
+
+fn main() {
+    let status = Status.Ok;
+    consume_status(status);
+    consume_status(Status.AccessDenied);
+}
+
+test "enum" {
+    assert (Status.Ok.is_ok());
+    assert (!Status.AccessDenied.is_ok());
+}

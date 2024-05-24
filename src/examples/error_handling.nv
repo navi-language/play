@@ -1,0 +1,32 @@
+struct MyError {
+    message: string
+}
+
+impl Error for MyError {
+    // Implement the `error` method for `MyError` struct, then `MyError` can be used as an `Error` interface.
+    pub fn error(self): string {
+        return self.message;
+    }
+}
+
+fn hello(name: string): string throws {
+    if (name == "Navi") {
+        throw "name can't be Navi";
+    }
+    return `Hello ${name}!`;
+}
+
+fn hello_with_custom_error(name: string): string throws MyError {
+    if (name == "Navi") {
+        throw MyError { message: "name can't be Navi" };
+    }
+    return `Hello ${name}!`;
+}
+
+fn main() throws {
+    let result = try hello("Navi");
+    println(result);
+
+    let result = try hello_with_custom_error("Navi");
+    println(result);
+}

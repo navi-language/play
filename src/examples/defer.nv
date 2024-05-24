@@ -1,0 +1,10 @@
+use std.io;
+
+fn main() throws {
+    defer println("defer 1");
+    defer {
+        println("defer 2");
+        println("defer 3");
+    }
+    println("Hello");
+}
