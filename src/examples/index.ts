@@ -9,7 +9,7 @@ import closure from "./closure.nv?raw";
 import optional from "./optional.nv?raw";
 import enums from "./enum.nv?raw";
 
-export default {
+const examples: Record<string, string> = {
   "hello_world.nv": hello_world,
   "assignment.nv": assignment,
   "testing.nv": testing,
@@ -21,3 +21,5 @@ export default {
   "defer.nv": defer,
   "spawn.nv": spawn,
 };
+
+export default examples;
