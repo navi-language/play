@@ -3,30 +3,79 @@ on:
   push:
     branches:
       - main
+      - build-docker
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: |
+      #       huacnlee/navi-playground:latest
+
+      # - name: Image digest
+      #   run: echo ${{ steps.docker_build.outputs.digest }}
+      - uses: actions/setup-python@v5
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+          python-version: "3.x"
+      - uses: actions/cache@v2
         with:
-          push: true
-          tags: |
-            huacnlee/navi-playground:latest
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip
+          restore-keys: |
+            ${{ runner.os }}-pip
+      - name: Install Tencent Cloud CLI
+        run: |
+          pip install tccli
+      - name: Update Container
+        env:
+          CONTAINER_NAME: navi-playground
+          CONTAINER_IMAGE: huacnlee/navi-playground
+          CONTAINER_PORT: 10000
+          INSTANCE_ID: lhins-oth3tve3
+          REGION: ap-singapore
+        run: |
+          tccli configure set secretId ${{ secrets.TENCENT_SECRET_ID }}  secretKey ${{ secrets.TENCENT_SECRET_KEY }} region $REGION output json
+          # Get last container id
+          describe_result=$(tccli lighthouse DescribeDockerContainers --cli-unfold-argument --region $REGION --InstanceId $INSTANCE_ID)
+          echo $describe_result
+          echo $describe_result | jq -r '.DockerContainerSet[0].ContainerId' > container_id.txt
+          export CONTAINER_ID=$(cat container_id.txt)
+          echo "Container ID: $CONTAINER_ID"
+          if [[ -v CONTAINER_ID ]]; then
+            echo "Update container $CONTAINER_ID..."
+            tccli lighthouse RerunDockerContainer --cli-unfold-argument --ContainerId $CONTAINER_ID \
+              --region $REGION \
+              --InstanceId $INSTANCE_ID \
+              --ContainerConfiguration.ContainerName $CONTAINER_NAME \
+              --ContainerConfiguration.ContainerImage $CONTAINER_IMAGE \
+              --ContainerConfiguration.PublishPorts.0.HostPort 80 \
+              --ContainerConfiguration.PublishPorts.0.ContainerPort $CONTAINER_PORT \
+              --ContainerConfiguration.RestartPolicy always
+          else
+            echo "Create container..."
+            tccli lighthouse RunDockerContainers --cli-unfold-argument \
+            --region $REGION \
+            --InstanceId $INSTANCE_ID \
+            --Containers.0.ContainerName $CONTAINER_NAME \
+            --Containers.0.ContainerImage $CONTAINER_IMAGE \
+            --Containers.0.PublishPorts.0.HostPort 80 \
+            --Containers.0.PublishPorts.0.ContainerPort $CONTAINER_PORT \
+            --Containers.0.RestartPolicy always
+          fi
