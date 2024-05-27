@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - build-docker
 permissions:
   contents: read
   pages: write
@@ -31,3 +32,23 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+      - uses: TencentCloud/cli-action@v1
+        env:
+          CONTAINER_ID: 9264f51be413
+          CONTAINER_NAME: navi-playground
+          CONTAINER_IMAGE: huacnlee/navi-playground:latest
+          CONTAINER_PORT: 10000
+          INSTANCE_ID: lhins-oth3tve3
+        with:
+          secretId: ${{ secrets.TENCENT_SECRET_ID }}
+          secretKey: ${{ secrets.TENCENT_SECRET_KEY }}
+          region: ap-singapore
+          commands: |
+            lighthouse RerunDockerContainer --cli-unfold-argument
+            --InstanceId $INSTANCE_ID \
+            --ContainerConfiguration.ContainerName $CONTAINER_NAME \
+            --ContainerConfiguration.ContainerImage '$CONTAINER_IMAGE' \
+            --ContainerConfiguration.PublishPorts.0.HostPort 80
+            --ContainerConfiguration.PublishPorts.0.ContainerPort $CONTAINER_PORT \
+            --ContainerConfiguration.RestartPolicy always
+            --ContainerId $CONTAINER_ID
