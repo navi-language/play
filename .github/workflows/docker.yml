@@ -55,7 +55,8 @@ jobs:
           # Get last container id
           describe_result=$(tccli lighthouse DescribeDockerContainers --cli-unfold-argument --region $REGION --InstanceId $INSTANCE_ID)
           echo $describe_result
-          echo $describe_result | CONTAINER_ID=$(jq -r '.DockerContainerSet[0].ContainerId')
+          echo $describe_result | jq -r '.DockerContainerSet[0].ContainerId' > container_id.txt
+          export CONTAINER_ID=$(cat container_id.txt)
           echo "Container ID: $CONTAINER_ID"
           if [[ -v CONTAINER_ID ]]; then
             echo "Update container $CONTAINER_ID..."
