@@ -56,7 +56,7 @@ jobs:
           describe_result=$(tccli lighthouse DescribeDockerContainers --cli-unfold-argument --region $REGION --InstanceId $INSTANCE_ID)
           echo $describe_result
           echo $describe_result | jq -r '.DockerContainerSet[0].ContainerId' | export CONTAINER_ID=$(tee)
-          if [ -s $CONTAINER_ID ]; then
+          if [[ -v CONTAINER_ID ]]; then
             echo "Update container $CONTAINER_ID..."
             tccli lighthouse RerunDockerContainer --cli-unfold-argument --ContainerId $CONTAINER_ID \
               --region $REGION \
