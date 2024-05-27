@@ -1,3 +1,4 @@
+import { spawnSync } from "bun";
 import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import { tmpdir } from "os";
@@ -17,6 +18,21 @@ const CORS_HEADERS = {
 
 console.log(`Server is running on port ${PORT}`);
 console.log(`http://localhost:${PORT}`);
+
+const naviVersion =
+  spawnSync(["navi", "--version"]).stdout?.toString().trim() || "";
+const startedAt = new Date().toISOString();
+const STATUS_MESSAGE = JSON.stringify(
+  {
+    name: "navi-playground",
+    github: "https://github.com/navi-language/play",
+    navi_version: naviVersion,
+    started_at: startedAt,
+    port: PORT,
+  },
+  null,
+  2,
+);
 
 Bun.serve({
   port: PORT,
@@ -50,7 +66,7 @@ Bun.serve({
       return await handleFormat(req);
     }
 
-    return newResponse("Navi playground", 200);
+    return newResponse(STATUS_MESSAGE, 200);
   },
 });
 
