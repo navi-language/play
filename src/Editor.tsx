@@ -6,7 +6,7 @@ import { addNaviLanguage } from "./languages";
 import examples from "./examples";
 
 const SERVER_URL = import.meta.env.PROD
-  ? "https://navi.leftriver.cn"
+  ? "https://play.navi-lang.org"
   : "http://localhost:3000";
 
 const DEFAULT_VALUE = examples["hello_world.nv"];
