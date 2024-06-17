@@ -142,17 +142,19 @@ function newResponse(
 }
 
 class NaviCommand {
-  static async run(source: string) {
-    const tmpFile = tmpdir() + "/" + randomUUID() + ".nv";
-    Bun.write(tmpFile, source);
+  static tmpFile() {
+    return tmpdir() + "/" + randomUUID() + ".nv";
+  }
 
+  static async run(source: string) {
+    const tmpFile = this.tmpFile();
+    Bun.write(tmpFile, source);
     return this.exec("navi", ["run", tmpFile]);
   }
 
   static async test(source: string) {
-    const tmpFile = tmpdir() + "/" + randomUUID() + ".nv";
+    const tmpFile = this.tmpFile();
     Bun.write(tmpFile, source);
-
     return this.exec("navi", ["test", tmpFile]);
   }
 
@@ -173,6 +175,10 @@ class NaviCommand {
     const child = spawn(command, args, {
       stdio: "pipe",
       timeout: SPAWN_TIMEOUT,
+      env: {
+        ...process.env,
+        NO_COLOR: "1",
+      },
     });
 
     if (options.input) {

@@ -17,7 +17,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
     : "vs",
   tabSize: 4,
   useTabStops: false,
-  lineNumbers: "off",
+  lineNumbers: "on",
   padding: {
     top: 10,
     bottom: 10,
