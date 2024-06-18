@@ -5,7 +5,7 @@ on:
       - main
   schedule:
     # Every day at 07:00 Beijing time
-    - cron: "0 15 * * *"
+    - cron: '0 15 * * *'
 
 jobs:
   docker:
@@ -30,12 +30,13 @@ jobs:
           push: true
           tags: |
             huacnlee/navi-playground:latest
+            huacnlee/navi-playground:${{ github.sha }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: '3.x'
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -48,11 +49,12 @@ jobs:
       - name: Update Container
         env:
           CONTAINER_NAME: navi-playground
-          CONTAINER_IMAGE: huacnlee/navi-playground
+          CONTAINER_IMAGE: huacnlee/navi-playground:${{ github.sha }}
           CONTAINER_PORT: 10000
           INSTANCE_ID: lhins-oth3tve3
           REGION: ap-singapore
         run: |
+          # https://github.com/TencentCloud/tencentcloud-cli
           tccli configure set secretId ${{ secrets.TENCENT_SECRET_ID }}  secretKey ${{ secrets.TENCENT_SECRET_KEY }} region $REGION output json
           # Get last container id
           describe_result=$(tccli lighthouse DescribeDockerContainers --cli-unfold-argument --region $REGION --InstanceId $INSTANCE_ID)
