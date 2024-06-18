@@ -1,23 +1,25 @@
-import Editor from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
-import { useEffect, useState } from "react";
-import { addNaviLanguage } from "./languages";
+import Editor, { loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
+import { useEffect, useState } from 'react';
+import { addNaviLanguage } from './languages';
 
-import examples from "./examples";
+loader.config({ monaco });
+
+import examples from './examples';
 
 const SERVER_URL = import.meta.env.PROD
-  ? "https://play.navi-lang.org"
-  : "http://localhost:3000";
+  ? 'https://play.navi-lang.org'
+  : 'http://localhost:3000';
 
-const DEFAULT_VALUE = examples["hello_world.nv"];
+const DEFAULT_VALUE = examples['hello_world.nv'];
 
 const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
-  theme: window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "vs-dark"
-    : "vs",
+  theme: window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'vs-dark'
+    : 'vs',
   tabSize: 4,
   useTabStops: false,
-  lineNumbers: "on",
+  lineNumbers: 'on',
   padding: {
     top: 10,
     bottom: 10,
@@ -27,7 +29,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
     horizontalScrollbarSize: 5,
     useShadows: false,
   },
-  renderLineHighlight: "none",
+  renderLineHighlight: 'none',
   minimap: {
     enabled: false,
   },
@@ -38,32 +40,32 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
 };
 
 export const AppEditor = () => {
-  const [currentExample, setCurrentExample] = useState("hello_world.nv");
+  const [currentExample, setCurrentExample] = useState('hello_world.nv');
   const [running, setRunning] = useState(false);
   const [formating, setFormating] = useState(false);
-  const [output, setOutput] = useState("");
+  const [output, setOutput] = useState('');
   const [monaco, setMonaco] = useState<any>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
-  const [message, showMessage] = useState("");
+  const [message, showMessage] = useState('');
 
   useEffect(() => {
     if (monaco) {
       addNaviLanguage(monaco);
 
       // Get media query is dark mode
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       // Watch dark mode change
-      mediaQuery.addEventListener("change", (e) => {
-        const newTheme = e.matches ? "vs-dark" : "vs";
+      mediaQuery.addEventListener('change', (e) => {
+        const newTheme = e.matches ? 'vs-dark' : 'vs';
         monaco?.editor?.setTheme(newTheme);
       });
 
-      monaco.editor.defineTheme("vs-dark", {
-        base: "vs-dark",
+      monaco.editor.defineTheme('vs-dark', {
+        base: 'vs-dark',
         inherit: true,
         rules: [],
         colors: {
-          "editor.background": "#030712",
+          'editor.background': '#030712',
         },
       });
     }
@@ -74,16 +76,16 @@ export const AppEditor = () => {
       return;
     }
 
-    setOutput("Executing please wait...");
+    setOutput('Executing please wait...');
     setRunning(true);
 
-    const path = is_test ? "/test" : "/execute";
+    const path = is_test ? '/test' : '/execute';
 
     const start = new Date();
     fetch(`${SERVER_URL}${path}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         source: editor.getValue(),
@@ -113,14 +115,14 @@ export const AppEditor = () => {
       return;
     }
 
-    setOutput("Formating...");
+    setOutput('Formating...');
     setFormating(true);
 
     const start = new Date();
     fetch(`${SERVER_URL}/format`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         source: editor.getValue(),
@@ -129,7 +131,7 @@ export const AppEditor = () => {
       .then((res) => res.json())
       .then((res) => {
         if (res.out) {
-          setOutput("Format successfully.");
+          setOutput('Format successfully.');
           editor.setValue(res.out);
         } else {
           setOutput(res.error);
@@ -147,7 +149,7 @@ export const AppEditor = () => {
 
   const onEditorMounted = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    monaco: any,
+    monaco: any
   ) => {
     setEditor(editor);
     setMonaco(monaco);
@@ -158,8 +160,8 @@ export const AppEditor = () => {
     // ?source=base64
     if (window.location.search) {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("source")) {
-        const source = atob(params.get("source") || "").toString();
+      if (params.get('source')) {
+        const source = atob(params.get('source') || '').toString();
         editor?.setValue(source);
       }
     } else {
@@ -205,13 +207,13 @@ export const AppEditor = () => {
             Test
           </button>
           <button className="btn" disabled={formating} onClick={formatText}>
-            {formating ? "Formating..." : "Format"}
+            {formating ? 'Formating...' : 'Format'}
           </button>
-          <span className="message">{running ? "Executing..." : ""}</span>
+          <span className="message">{running ? 'Executing...' : ''}</span>
         </div>
         <ExampleSelector />
       </div>
-      <div className="editor-wraper mt-4">
+      <div className="mt-4 editor-wraper">
         <Editor
           defaultLanguage="navi"
           className="flex-1 w-full h-screen max-h-[50vh]"
@@ -220,7 +222,7 @@ export const AppEditor = () => {
           onMount={onEditorMounted}
         />
         <pre className="editor-output text-wrap overflow-y-scroll h-screen max-h-[25vh] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
-          {output || "No output."}
+          {output || 'No output.'}
         </pre>
       </div>
     </div>

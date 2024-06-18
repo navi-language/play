@@ -1,18 +1,20 @@
-import { spawnSync } from "bun";
-import { spawn } from "child_process";
-import { randomUUID } from "crypto";
-import { tmpdir } from "os";
-import stripAnsi from "strip-ansi";
+import { spawnSync } from 'bun';
+import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
+import { tmpdir } from 'os';
+import stripAnsi from 'strip-ansi';
 
 const PORT = process.env.PORT || 3000;
 const SPAWN_TIMEOUT = 10000;
-const TIMEOUT_MESSAGE = `Execution timeout, the maximum allowed time is ${SPAWN_TIMEOUT / 1000}s.`;
+const TIMEOUT_MESSAGE = `Execution timeout, the maximum allowed time is ${
+  SPAWN_TIMEOUT / 1000
+}s.`;
 
 const CORS_HEADERS = {
   headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, DELETE",
-    "Access-Control-Allow-Headers": "Content-Type",
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
+    'Access-Control-Allow-Headers': 'Content-Type',
   },
 };
 
@@ -20,18 +22,18 @@ console.log(`Server is running on port ${PORT}`);
 console.log(`http://localhost:${PORT}`);
 
 const naviVersion =
-  spawnSync(["navi", "--version"]).stdout?.toString().trim() || "";
+  spawnSync(['navi', '--version']).stdout?.toString().trim() || '';
 const startedAt = new Date().toISOString();
 const STATUS_MESSAGE = JSON.stringify(
   {
-    name: "navi-playground",
-    github: "https://github.com/navi-language/play",
+    name: 'navi-playground',
+    github: 'https://github.com/navi-language/play',
     navi_version: naviVersion,
     started_at: startedAt,
     port: PORT,
   },
   null,
-  2,
+  2
 );
 
 Bun.serve({
@@ -40,29 +42,29 @@ Bun.serve({
     const path = new URL(req.url).pathname;
 
     const clientIP =
-      req.headers["x-forwarded-for"] ||
-      req.headers["cf-connecting-ip"] ||
-      req.headers["x-real-ip"] ||
-      "";
+      req.headers['x-forwarded-for'] ||
+      req.headers['cf-connecting-ip'] ||
+      req.headers['x-real-ip'] ||
+      '';
 
-    const userAgent = req.headers["user-agent"] || "";
+    const userAgent = req.headers['user-agent'] || '';
     const date = new Date().toISOString();
 
     console.info(`${date} ${req.method} ${path} ${clientIP} ${userAgent}`);
 
     // Handle CORS preflight requests
-    if (req.method === "OPTIONS") {
-      const res = new Response("", CORS_HEADERS);
+    if (req.method === 'OPTIONS') {
+      const res = new Response('', CORS_HEADERS);
       return res;
     }
 
-    if (req.method === "POST" && path === "/execute") {
+    if (req.method === 'POST' && path === '/execute') {
       return await handleExecute(req);
     }
-    if (req.method === "POST" && path === "/test") {
+    if (req.method === 'POST' && path === '/test') {
       return await handleTest(req);
     }
-    if (req.method === "POST" && path === "/format") {
+    if (req.method === 'POST' && path === '/format') {
       return await handleFormat(req);
     }
 
@@ -76,7 +78,7 @@ async function handleFormat(req: Request) {
   const { source } = payload;
 
   if (!source) {
-    return new Response("No source code provided", { status: 200 });
+    return new Response('No source code provided', { status: 200 });
   }
 
   const result = await NaviCommand.format(source);
@@ -93,7 +95,7 @@ async function handleExecute(req: Request) {
   const { source } = payload;
 
   if (!source) {
-    return new Response("No source code provided", { status: 200 });
+    return new Response('No source code provided', { status: 200 });
   }
 
   const result = await NaviCommand.run(source);
@@ -113,7 +115,7 @@ async function handleTest(req: Request) {
   const { source } = payload;
 
   if (!source) {
-    return new Response("No source code provided", { status: 200 });
+    return new Response('No source code provided', { status: 200 });
   }
 
   const result = await NaviCommand.test(source);
@@ -129,10 +131,10 @@ async function handleTest(req: Request) {
 
 function newResponse(
   data: Record<string, string> | string,
-  status: number,
+  status: number
 ): Response {
-  let body = "";
-  if (typeof data === "string") {
+  let body = '';
+  if (typeof data === 'string') {
     body = data;
   } else {
     body = JSON.stringify(data);
@@ -143,23 +145,23 @@ function newResponse(
 
 class NaviCommand {
   static tmpFile() {
-    return tmpdir() + "/" + randomUUID() + ".nv";
+    return tmpdir() + '/' + randomUUID() + '.nv';
   }
 
   static async run(source: string) {
     const tmpFile = this.tmpFile();
     Bun.write(tmpFile, source);
-    return this.exec("navi", ["run", tmpFile]);
+    return this.exec('navi', ['run', tmpFile]);
   }
 
   static async test(source: string) {
     const tmpFile = this.tmpFile();
     Bun.write(tmpFile, source);
-    return this.exec("navi", ["test", tmpFile]);
+    return this.exec('navi', ['test', tmpFile]);
   }
 
   static async format(source: string) {
-    return this.exec("navi", ["fmt", "--stdin", "--emit", "stdout"], {
+    return this.exec('navi', ['fmt', '--stdin', '--emit', 'stdout'], {
       input: source,
     });
   }
@@ -169,15 +171,16 @@ class NaviCommand {
     args: string[],
     options: {
       input?: string;
-    } = {},
+    } = {}
   ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
     // args.unshift(command);
     const child = spawn(command, args, {
-      stdio: "pipe",
+      stdio: 'pipe',
       timeout: SPAWN_TIMEOUT,
       env: {
         ...process.env,
-        NO_COLOR: "1",
+        NO_COLOR: '1',
+        FORCE_COLOR: '1',
       },
     });
 
@@ -187,17 +190,17 @@ class NaviCommand {
     }
 
     return new Promise((resolve) => {
-      const result = { exitCode: -1, stdout: "", stderr: "" };
+      const result = { exitCode: -1, stdout: '', stderr: '' };
 
-      child.stdout?.on("data", (data) => {
+      child.stdout?.on('data', (data) => {
         result.stdout += data;
       });
 
-      child.stderr?.on("data", (data) => {
+      child.stderr?.on('data', (data) => {
         result.stderr += data;
       });
 
-      child.on("exit", (code) => {
+      child.on('exit', (code) => {
         if (code === null) {
           code = -1;
           result.stderr = TIMEOUT_MESSAGE;
