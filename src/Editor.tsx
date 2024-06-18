@@ -6,6 +6,7 @@ import { addNaviLanguage } from './languages';
 loader.config({ monaco });
 
 import examples from './examples';
+import { getTheme } from './theme';
 
 const SERVER_URL = import.meta.env.PROD
   ? 'https://play.navi-lang.org'
@@ -14,9 +15,7 @@ const SERVER_URL = import.meta.env.PROD
 const DEFAULT_VALUE = examples['hello_world.nv'];
 
 const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
-  theme: window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'vs-dark'
-    : 'vs',
+  theme: getTheme() == 'dark' ? 'vs-dark' : 'vs',
   tabSize: 4,
   useTabStops: false,
   lineNumbers: 'on',
