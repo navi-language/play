@@ -6,7 +6,7 @@ import { addNaviLanguage } from './languages';
 loader.config({ monaco });
 
 import examples from './examples';
-import { getTheme } from './theme';
+import { getTheme, registerThemeChanged } from './theme';
 
 const SERVER_URL = import.meta.env.PROD
   ? 'https://play.navi-lang.org'
@@ -51,12 +51,8 @@ export const AppEditor = () => {
     if (monaco) {
       addNaviLanguage(monaco);
 
-      // Get media query is dark mode
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      // Watch dark mode change
-      mediaQuery.addEventListener('change', (e) => {
-        const newTheme = e.matches ? 'vs-dark' : 'vs';
-        monaco?.editor?.setTheme(newTheme);
+      registerThemeChanged((theme) => {
+        monaco.editor.setTheme(theme == 'dark' ? 'vs-dark' : 'vs');
       });
 
       monaco.editor.defineTheme('vs-dark', {
@@ -188,7 +184,7 @@ export const AppEditor = () => {
   };
 
   return (
-    <div className="p-4 text-left app-editor-wrap">
+    <div className="py-4 text-left app-editor-wrap">
       <div className="flex items-center justify-between space-x-3">
         <div className="flex gap-3">
           <button
@@ -215,14 +211,12 @@ export const AppEditor = () => {
       <div className="mt-4 editor-wraper">
         <Editor
           defaultLanguage="navi"
-          className="flex-1 w-full h-screen max-h-[50vh]"
+          className="editor-input"
           theme={editorOptions.theme}
           options={editorOptions}
           onMount={onEditorMounted}
         />
-        <pre className="editor-output text-wrap overflow-y-scroll h-screen max-h-[25vh] border-t border-t-gray-300 dark:border-t-gray-700 bg-gray-100 text-gray-600 dark:text-gray-400 dark:bg-gray-950 p-3">
-          {output || 'No output.'}
-        </pre>
+        <pre className="editor-output">{output || 'No output.'}</pre>
       </div>
     </div>
   );
