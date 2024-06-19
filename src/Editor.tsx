@@ -45,7 +45,7 @@ export const AppEditor = () => {
   const [output, setOutput] = useState('');
   const [monaco, setMonaco] = useState<any>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
-  const [message, showMessage] = useState('');
+  const [, showMessage] = useState('');
 
   useEffect(() => {
     if (monaco) {

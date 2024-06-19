@@ -1,7 +1,7 @@
 type Theme = 'dark' | 'light';
 
 const getStoredTheme = () => {
-  let theme = localStorage.getItem('vitepress-theme-appearance');
+  const theme = localStorage.getItem('vitepress-theme-appearance');
   if (theme == 'dark' || theme == 'light') {
     return theme;
   }
