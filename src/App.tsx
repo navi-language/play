@@ -2,8 +2,8 @@ import { AppEditor } from './Editor';
 
 function App() {
   return (
-    <div className="container max-w-6xl mx-auto mt-10">
-      <div className="flex items-end justify-between mb-6">
+    <div className="container max-w-6xl px-4 mx-auto mt-10 xl:p-0">
+      <div className="flex flex-col gap-4 mb-6 md:items-end md:justify-between md:flex-row">
         <h1 className="navi-name">
           <span className="navi">Navi</span> Playground
         </h1>

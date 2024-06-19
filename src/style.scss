@@ -7,6 +7,8 @@ html {
 }
 
 .navi-name {
+  @apply gap-4;
+
   font-size: 26px;
   font-weight: 700;
   color: #3c3c43;
@@ -16,12 +18,11 @@ html {
     color: transparent;
     background: -webkit-linear-gradient(90deg, #2463dd 45%, #0a2252);
     background-clip: text;
-    margin-right: 10px;
   }
 }
 
 .nav-links {
-  @apply flex items-center gap-6 text-base;
+  @apply flex flex-wrap items-center justify-center md:justify-end gap-3 md:gap-6 text-base;
 
   a:link,
   a:visited {

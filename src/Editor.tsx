@@ -185,8 +185,8 @@ export const AppEditor = () => {
 
   return (
     <div className="py-4 text-left app-editor-wrap">
-      <div className="flex items-center justify-between space-x-3">
-        <div className="flex gap-3">
+      <div className="flex flex-col-reverse justify-between gap-3 md:flex-row md:items-center">
+        <div className="flex items-center gap-3">
           <button
             className="btn-primary"
             disabled={running}
